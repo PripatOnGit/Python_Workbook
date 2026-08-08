@@ -1,9 +1,5 @@
 '''Two Sum:
 Given a list of integers and a target number, return the indices of the two numbers that add up to the target. Assume exactly one solution exists.
-
-Psuedocode:
-
-
 '''
 
 def two_sum(ls, target):
