@@ -1,6 +1,7 @@
 '''
 Input:  ["eat","tea","tan","ate","nat","bat"]
 Output: [["eat","tea","ate"], ["tan","nat"], ["bat"]]
+check Group Anagram
 '''
 from collections import defaultdict
 def group_anagram(words):
