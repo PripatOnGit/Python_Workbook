@@ -4,8 +4,6 @@ Input:  s = "anagram", t = "nagaram"  → True
 Input:  s = "rat",     t = "car"      → False
 Input:  s = "cat",     t = "cats"     → False
 
-
-
 Pseudocode:
 FUNCTION is_anagram(s, t):
     IF len(s) != len(t):
