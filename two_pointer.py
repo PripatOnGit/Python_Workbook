@@ -1,4 +1,4 @@
-'''Two Sum (Two Pointer way)'''
+'''Two Sum (Two Pointer way) - O(n)'''
 
 def two_sum(nums, target):
     left = 0
