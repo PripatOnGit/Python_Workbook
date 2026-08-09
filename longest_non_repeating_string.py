@@ -7,12 +7,13 @@ def longest_string(s):
     seen = set()
 
     for right in range(0,len(s)):
-        if s[right] in seen:
-            seen.remove(s[right])
+        while s[right] in seen:
+            seen.remove(s[left])
             left += 1
         seen.add(s[right])
         max_len = max(max_len, right-left+1) 
-    return max_len, seen
+    print(seen)
+    return max_len
 
 s = 'abcabcbb'
 print(longest_string(s))
