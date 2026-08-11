@@ -10,9 +10,9 @@ def two_sum(ls, target):
             return [index_dict[rem], index]
         else:
             index_dict[num]=index
-            print(index_dict[num])
+            #print(index_dict[num])
     return None
 
 nums = [3, 7, 3, 15]
-target = 6
+target = 10
 print(f"Target value at indices: {two_sum(nums, target)}")
