@@ -1,0 +1,62 @@
+Python handles strings under the hood through a combination of immutability, interning (caching), and smart memory encoding.Here is a breakdown of how Python manages strings in memory and execution:1. Immutability & Re-allocationIn Python, strings are immutable objects (specifically PyUnicodeObject in CPython).Once allocated in memory, the contents of a string cannot be modified.Any operation that appears to mutate a string (like .replace(), .upper(), or + concatenation) actually allocates a brand-new memory block for the new string and leaves the original untouched.Pythons = "cat"
+print(id(s))  # e.g., 1403829100128
+
+s += "s"      # Creates a NEW string "cats" in memory
+print(id(s))  # e.g., 1403829104800 (Different address)
+2. String Interning (Memory Optimization)To save memory and speed up dictionary/lookup operations, Python uses String Interning.What it is: Python reuses existing string instances in memory instead of creating duplicates.Automatic Interning: CPython automatically interns string literals that look like Python identifiers (alphanumeric characters + underscores) and short strings.Why it matters: Comparing interned strings using is is instantaneous ($O(1)$) because Python only compares memory pointers rather than checking character-by-character ($O(N)$).Pythona = "hello_world"
+b = "hello_world"
+
+print(a is b)  # True! Both variables point to the SAME memory address.
+3. Dynamic Encoding (PEP 393 — Flexible String Representation)Python 3 handles Unicode natively, but storing every character as 4 bytes (UTF-32) would waste massive amounts of RAM. Python dynamically adapts string memory layouts based on the "highest" character in the string:Character RangeEncoding UsedBytes per CharacterASCII (e.g., 'hello')PyASCIIObject (1-byte)1 byteLatin-1 (e.g., 'café')Compact Unicode (1-byte)1 byteBMP / Cyrillic / GreekTwo-byte2 bytesEmojis / Asian Scripts (e.g., '🐍')Four-byte4 bytesKey takeaway: A pure ASCII string takes up only 1 byte per character, keeping string memory usage light while retaining full $O(1)$ random access indexing (s[i]).4. Efficient Concatenation in CPythonNormally, building strings via repeated + in a loop takes $O(N^2)$ time due to constant re-allocations:Python# Bad: O(N^2) time
+res = ""
+for char in char_list:
+    res += char
+Under the hood:Python creates a list first: ['a', 'b', 'c']." ".join(char_list) calculates the exact total length needed beforehand.It allocates a single block of memory once and fills it in $O(N)$ time.Quick Summary for InterviewsStorage: Stored as PyUnicodeObject in CPython with flexible 1-, 2-, or 4-byte memory representations per character.Access: Indexing s[i] is $O(1)$ time because elements are stored contiguously in memory arrays.Modification: Strings are immutable. All modifications return new objects.Optimization: Uses interning (pointer reuse) for fast comparisons and memory savings.
+
+------------------------------------------------------------------------------------------------------------------------------------
+1. Core Language Mechanics & Memory ModelImmutability: Strings cannot be modified in place after creation. Methods like .replace() or .upper() return new string objects.String Interning: Python automatically optimizes memory by reusing objects for short string literals and valid identifiers.Identity (is) vs Equality (==):== checks character-by-character value equality.is checks whether two variables share the exact same memory address (id()).Pythons = "hello"
+# s[0] = "H"  # ❌ TypeError: 'str' object does not support item assignment
+
+# Re-assignment creates a new string object in memory
+print(id(s))
+s += " world"
+print(id(s))  # Different memory address!
+2. String Slicing & OperationsPython slice syntax follows sequence[start:stop:step]:OperationSyntaxResult / NoteTime ComplexitySubstrings[start:stop]Characters from start up to stop - 1$O(K)$ where $K$ is slice lengthReverses[::-1]Reverses string right-to-left$O(N)$Step / Every $k$-ths[::k]Elements in steps of $k$$O(N/k)$3. Crucial Built-in String MethodsMethodDescriptionKey Edge Case / Interview Note.split(sep)Splits string into a list by delimiterDefault split() handles arbitrary whitespace and strips leading/trailing spaces cleanly. split(" ") keeps empty string tokens.delimiter.join(iterable)Combines items into a single stringPreferred over + in loops to avoid $O(N^2)$ overhead..strip() / .lstrip() / .rstrip()Removes whitespace or specified charsDoes not affect characters in the middle of the string..find(sub) vs .index(sub)Returns starting index of substring.find() returns -1 on failure; .index() raises ValueError..startswith() / .endswith()Checks prefix/suffix matchCan take a tuple of strings (e.g., s.startswith(('a', 'b')))..isalpha() / .isdigit() / .isalnum()Character classificationCrucial for filtering out non-alphanumeric characters in palindrome problems.4. String Building Best Practice ($O(N)$ vs $O(N^2)$)Interview Red Flag: Concatenating strings inside a loop using + creates a brand-new string object at every step, causing $O(N^2)$ time complexity.Python# ❌ BAD: O(N^2) time complexity
+result = ""
+for char in char_list:
+    result += char
+
+# ✅ GOOD: O(N) time complexity
+result = "".join(char_list)
+5. Character Conversions & ASCII Mathord(char): Returns integer ASCII / Unicode code point (e.g., ord('a') == 97).chr(code): Returns character from code point (e.g., chr(97) == 'a').Fixed-size Array Mapping Pattern: Map lowercase letters 'a' through 'z' to indices 0..25:Python# Create fixed-size frequency array for lowercase English letters
+freq = [0] * 26
+for ch in "helloworld":
+    freq[ord(ch) - ord('a')] += 1
+6. Primary Algorithmic Patterns for String QuestionsPattern 1: Two PointersCommon Applications: Valid Palindrome, Reverse Vowels, String Compression.Key Concept: Pointer left starts at 0, pointer right starts at len(s) - 1. Move towards middle.Pythondef is_palindrome(s: str) -> bool:
+    left, right = 0, len(s) - 1
+    while left < right:
+        while left < right and not s[left].isalnum():
+            left += 1
+        while left < right and not s[right].isalnum():
+            right -= 1
+        if s[left].lower() != s[right].lower():
+            return False
+        left += 1
+        right -= 1
+    return True
+Pattern 2: Sliding WindowCommon Applications: Longest Substring Without Repeating Characters, Minimum Window Substring, Find All Anagrams.Key Concept: Maintain a dynamic subarray/substring defined by left and right indices while updating a hash map or set of character frequencies.Pythondef length_of_longest_substring(s: str) -> int:
+    seen = {}
+    left = 0
+    max_len = 0
+    for right, char in enumerate(s):
+        if char in seen and seen[char] >= left:
+            left = seen[char] + 1
+        seen[char] = right
+        max_len = max(max_len, right - left + 1)
+    return max_len
+	
+Pattern 3: Hash Map / Frequency TableCommon Applications: Valid Anagram, Group Anagrams, First Unique Character.Key Concept: Count character frequencies using collections.Counter or standard dict.Pythonfrom collections import Counter
+
+def is_anagram(s: str, t: str) -> bool:
+    return Counter(s) == Counter(t)
+Pattern 4: Prefix Trees (Trie)Common Applications: Longest Common Prefix, Autocomplete Systems, Word Search II.Key Concept: Tree structure where nodes represent characters, allowing prefix lookups in $O(L)$ time ($L$ = word length).7. Interview Edge Cases ChecklistWhen solving string problems, always test these scenarios:Empty String ("") or Single Character ("a")Case Sensitivity: Are "A" and "a" considered identical?Character Set Boundaries: Lowercase only, ASCII, or Unicode/UTF-8?Spaces & Punctuation: Should whitespace or non-alphanumeric characters be ignored?All Characters Identical: e.g., "aaaaa"No Match / Target Not Present

@@ -1,0 +1,63 @@
+1. Fundamentals & SyntaxFunctions are reusable blocks of code defined using the def keyword.Pythondef greet(name):
+    """Docstring: Returns a personalized greeting string."""
+    return f"Hello, {name}!"
+Key RulesScope & Scope Resolution (LEGB Rule): Python searches for variable names in this exact order: Local $\rightarrow$ Enclosing $\rightarrow$ Global $\rightarrow$ Built-in.Return Values: If a function does not encounter an explicit return statement, it returns None by default.First-Class Citizens: In Python, functions are first-class objects. You can assign them to variables, pass them as arguments to other functions, and return them from functions.2. Argument Types & Parameter PassingPositional vs. Keyword ArgumentsPythondef describe_pet(animal, name):
+    print(f"{name} is a {animal}")
+
+describe_pet("dog", "Buddy")           # Positional
+describe_pet(name="Buddy", animal="dog") # Keyword
+Default Parameters (The Mutable Default Trap)Crucial Interview Trap: Never use a mutable object (like a list or dict) as a default parameter value because defaults are evaluated once when the function is defined, not every time it is called.❌ Bad (Causes state bug across calls):Pythondef append_to(element, target=[]):
+    target.append(element)
+    return target
+✅ Good (Pythonic fix):Pythondef append_to(element, target=None):
+    if target is None:
+        target = []
+    target.append(element)
+    return target
+Variable Arguments (*args and **kwargs)*args: Collects extra positional arguments into a tuple.**kwargs: Collects extra keyword arguments into a dictionary.Pythondef flexible_fn(*args, **kwargs):
+    print(args)   # (1, 2)
+    print(kwargs) # {'a': 3, 'b': 4}
+
+flexible_fn(1, 2, a=3, b=4)
+Keyword-Only and Positional-Only ParametersIntroduced to enforce API design parameters using / and *:Python# 'a' must be positional-only
+# 'b' can be positional or keyword
+# 'c' must be keyword-only
+def strict_fn(a, /, b, *, c):
+    pass
+
+strict_fn(1, 2, c=3) # Valid
+3. Advanced Function ConceptsA. Lambda (Anonymous) FunctionsShort, single-expression functions. They cannot contain multiple statements or explicit return keywords.Python# lambda arguments: expression
+square = lambda x: x ** 2
+B. Higher-Order Functions (map, filter, reduce)Functions that take other functions as parameters.Pythonnums = [1, 2, 3, 4, 5]
+
+# map: Transforms each element (returns an iterator)
+squared = list(map(lambda x: x ** 2, nums)) # [1, 4, 9, 16, 25]
+
+# filter: Keeps elements where function returns True (returns an iterator)
+evens = list(filter(lambda x: x % 2 == 0, nums)) # [2, 4]
+
+# reduce: Aggregates list to a single value
+from functools import reduce
+total_sum = reduce(lambda acc, x: acc + x, nums) # 15
+C. Closures & Inner FunctionsA closure occurs when an inner function remembers and has access to variables in its enclosing scope, even after the outer function has finished executing.Pythondef make_multiplier(factor):
+    def multiply(number):
+        return number * factor  # 'factor' is remembered from enclosing scope
+    return multiply
+
+double = make_multiplier(2)
+print(double(5)) # Output: 10
+D. DecoratorsDecorators wrap a function to extend or modify its behavior without permanently altering the code inside it.Pythonimport functools
+
+def my_logger(func):
+    @functools.wraps(func) # Preserves original function's name and docstring
+    def wrapper(*args, **kwargs):
+        print(f"Calling {func.__name__}...")
+        result = func(*args, **kwargs)
+        print("Done!")
+        return result
+    return wrapper
+
+@my_logger
+def add(a, b):
+    return a + b
+4. Cheat Sheet for InterviewsTopicKey Answer PointPassing MechanismPython uses Pass-by-assignment (or Pass-by-object-reference). Modifying a mutable object inside a function mutates the original object outside. Reassigning the variable inside creates a local reference.*args vs **kwargs*args packs extra arguments into a tuple; **kwargs packs named arguments into a dict.map() return typeReturns a lazy map iterator, not a list. Convert using list(map(...)).Mutable DefaultsDefault parameter expressions are evaluated once at definition time, leading to shared state between calls if mutable.Global modificationTo modify a global variable inside a local scope, you must explicitly declare global var_name inside the function.
