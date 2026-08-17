@@ -1,0 +1,3 @@
+Hello, Python!
+This is file IO practice.
+Appended line
